@@ -52,6 +52,10 @@
   }
   main { max-width: 860px; margin: 0 auto; padding: 16px; }
   .q { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .disclaimer {
+    font-size: 13px; color: var(--muted); margin: 0 0 16px; padding: 8px 12px;
+    border: 1px dashed var(--border); border-radius: 8px;
+  }
   .q-meta { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
   .q-text { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
   .q img { display: block; max-width: 100%; max-height: 320px; margin: 0 auto 12px; border-radius: 6px; }
@@ -113,7 +117,10 @@
     </div>
   </div>
 </header>
-<main id="list"></main>
+<main>
+  <p class="disclaimer" data-t="disclaimer"></p>
+  <div id="list"></div>
+</main>
 
 <script>
 const DATA_VERSIONS = {"he": "af03d70942", "en": "d58621b0de", "ar": "f6458af065"};
@@ -128,6 +135,7 @@ const STRINGS = {
     prev: 'הקודם', next: 'הבא', randomNext: 'שאלה אקראית', random: 'אקראי',
     meta: (i, id, topic) => `${i}. שאלה מספר ${id} · ${topic}`,
     imgAlt: 'תמונה לשאלה', imgMissing: '(התמונה לשאלה זו אינה זמינה במאגר)',
+    disclaimer: 'האתר מבוסס על מאגר השאלות הרשמי של משרד התחבורה, אך אינו מופעל על ידי הממשלה והתוכן בו אינו מאומת באופן מלא. השימוש באתר חינמי.',
     loading: 'טוען שאלות…', error: 'שגיאה בטעינת השאלות. נסו לרענן את הדף.',
   },
   en: {
@@ -139,6 +147,7 @@ const STRINGS = {
     prev: 'Previous', next: 'Next', randomNext: 'Random question', random: 'Random',
     meta: (i, id, topic) => `${i}. Question no. ${id} · ${topic}`,
     imgAlt: 'Question image', imgMissing: '(The image for this question is not available)',
+    disclaimer: 'This site is based on the official question pool of the Israeli Ministry of Transport, but it is not operated by the government and its content has not been fully verified. The site is free to use.',
     loading: 'Loading questions…', error: 'Failed to load the questions. Try refreshing the page.',
   },
   ar: {
@@ -150,6 +159,7 @@ const STRINGS = {
     prev: 'السابق', next: 'التالي', randomNext: 'سؤال عشوائي', random: 'عشوائي',
     meta: (i, id, topic) => `${i}. سؤال رقم ${id} · ${topic}`,
     imgAlt: 'صورة السؤال', imgMissing: '(صورة هذا السؤال غير متوفرة)',
+    disclaimer: 'يعتمد هذا الموقع على بنك الأسئلة الرسمي لوزارة المواصلات، لكنه لا يُدار من قبل الحكومة ولم يتم التحقق من محتواه بالكامل. استخدام الموقع مجاني.',
     loading: 'جارٍ تحميل الأسئلة…', error: 'فشل تحميل الأسئلة. حاول تحديث الصفحة.',
   },
 };

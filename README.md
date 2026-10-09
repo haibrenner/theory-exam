@@ -4,6 +4,8 @@ Practice app for the Israeli driving theory exam, built from the official questi
 
 **Live site:** https://haibrenner.github.io/theory-exam/
 
+> **Disclaimer:** This site is based on the official question pool published by the Israeli Ministry of Transport, but it is not operated by the government and its content has not been fully verified. The site is free to use.
+
 ## Files
 
 | File | Purpose |
