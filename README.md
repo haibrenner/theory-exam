@@ -1,6 +1,6 @@
 # Theory Exam Practice
 
-Practice app for the Israeli driving theory exam, built from the official question pool (data.gov.il, Ministry of Transport).
+Practice app for the Israeli driving theory exam, built from the official question pool (data.gov.il, Ministry of Transport), in Hebrew, English and Arabic.
 
 **Live site:** https://haibrenner.github.io/theory-exam/
 
@@ -8,11 +8,14 @@ Practice app for the Israeli driving theory exam, built from the official questi
 
 | File | Purpose |
 |---|---|
-| `theory_questions.txt` | Full question pool (1802 questions), each tagged with topic and license types |
-| `theory_answers.txt` | Correct answer for every question |
-| `build.py` | Parses the two text files into `data.js` |
-| `data.js` | Generated question data loaded by the page |
+| `theory_questions.txt` / `theory_answers.txt` | Hebrew question pool (1802 questions) and correct answers |
+| `theory_questions_en.txt` / `theory_answers_en.txt` | English pool, same questions and numbering |
+| `theory_questions_ar.txt` / `theory_answers_ar.txt` | Arabic pool, same questions and numbering |
+| `build.py` | Parses the text files into `data_he.js`, `data_en.js`, `data_ar.js` |
+| `data_*.js` | Generated question data, one file per language, loaded on demand by the page |
 | `index.html` | The app (plain HTML/CSS/JS, no dependencies) |
+
+The Hebrew pool is the master: the English and Arabic files use its question list, topics, license tags and image links. Each language keeps its own question text, answer order and correct answer. Arabic questions 673 and 1357 are missing from the official Arabic dataset, so they appear in Hebrew.
 
 ## Updating the questions
 
@@ -22,6 +25,6 @@ Edit the text files, then run:
 python3 build.py
 ```
 
-This regenerates `data.js` and updates its cache-busting version in `index.html`. Commit and push; GitHub Pages redeploys automatically.
+This regenerates the `data_*.js` files and updates their cache-busting versions in `index.html`. Commit and push; GitHub Pages redeploys automatically.
 
 To use the app offline, open `index.html` directly in a browser (images still need internet).

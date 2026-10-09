@@ -20,7 +20,7 @@
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--text);
-    font-family: "Segoe UI", Arial, "Noto Sans Hebrew", sans-serif; line-height: 1.5;
+    font-family: "Segoe UI", Arial, "Noto Sans Hebrew", "Noto Sans Arabic", sans-serif; line-height: 1.5;
   }
   header {
     position: sticky; top: 0; z-index: 1; background: var(--bg);
@@ -58,39 +58,46 @@
   .img-missing { font-size: 13px; color: var(--muted); font-style: italic; margin-bottom: 12px; }
   .opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
   .opts button {
-    width: 100%; text-align: right; font-size: 16px; padding: 9px 12px;
+    width: 100%; text-align: start; font-size: 16px; padding: 9px 12px;
     border: 1px solid var(--border); border-radius: 8px; background: var(--card);
   }
   .opts button:not(:disabled):hover { background: var(--opt-hover); }
   .opts button:disabled { opacity: 1; cursor: default; }
   .opts button.right { background: var(--right); border-color: var(--right-border); }
   .opts button.wrong { background: var(--wrong); border-color: var(--wrong-border); }
-  .letter { font-weight: 700; margin-left: 6px; }
+  .letter { font-weight: 700; margin-inline-end: 6px; }
 </style>
 </head>
 <body>
 <header>
   <div class="controls">
-    <label>רישיון
+    <label><span data-t="language"></span>
+      <select id="lang">
+        <option value="he" selected>עברית</option>
+        <option value="en">English</option>
+        <option value="ar">العربية</option>
+      </select>
+    </label>
+    <label><span data-t="license"></span>
       <select id="license">
-        <option value="B" selected>B – רכב פרטי</option>
-        <option value="A">A – אופנוע</option>
-        <option value="C1">C1 – משאית קלה</option>
-        <option value="C">C – משאית כבדה</option>
-        <option value="D">D – אוטובוס</option>
-        <option value="1">1 – טרקטור</option>
+        <option value="B" selected></option>
+        <option value="A"></option>
+        <option value="C1"></option>
+        <option value="C"></option>
+        <option value="D"></option>
+        <option value="1"></option>
       </select>
     </label>
-    <label>נושא
+    <label><span data-t="topic"></span>
       <select id="topic">
-        <option value="">כל הנושאים</option>
-        <option>חוקי התנועה</option>
-        <option>בטיחות</option>
-        <option>תמרורים</option>
-        <option>הכרת הרכב</option>
+        <option value=""></option>
+        <option value="laws"></option>
+        <option value="safety"></option>
+        <option value="signs"></option>
+        <option value="vehicle"></option>
       </select>
     </label>
-    <label>שאלות בעמוד
+    <label><span data-t="perPage"></span>
       <select id="size">
         <option>1</option><option>5</option><option selected>10</option><option>20</option>
         <option>50</option><option>100</option><option value="all">ALL</option><option value="random">RANDOM</option>
@@ -98,33 +105,96 @@
     </label>
     <span class="info" id="count"></span>
     <div class="pager">
-      <button id="prev">הקודם</button>
-      <input type="range" id="slider" min="1" value="1" aria-label="מספר עמוד">
-      <input type="number" id="pageNum" min="1" value="1" aria-label="מספר עמוד">
+      <button id="prev"></button>
+      <input type="range" id="slider" min="1" value="1">
+      <input type="number" id="pageNum" min="1" value="1">
       <span class="info" id="pageInfo"></span>
-      <button id="next">הבא</button>
+      <button id="next"></button>
     </div>
   </div>
 </header>
 <main id="list"></main>
 
-<script src="data.js?v=5269bb8840"></script>
 <script>
-const LETTERS = ['א', 'ב', 'ג', 'ד'];
+const DATA_VERSIONS = {"he": "af03d70942", "en": "d58621b0de", "ar": "f6458af065"};
+
+const STRINGS = {
+  he: {
+    dir: 'rtl', title: 'תרגול תאוריה', letters: 'אבגד',
+    language: 'שפה', license: 'רישיון', topic: 'נושא', perPage: 'שאלות בעמוד',
+    licenses: { B: 'רכב פרטי', A: 'אופנוע', C1: 'משאית קלה', C: 'משאית כבדה', D: 'אוטובוס', 1: 'טרקטור' },
+    topics: { '': 'כל הנושאים', laws: 'חוקי התנועה', safety: 'בטיחות', signs: 'תמרורים', vehicle: 'הכרת הרכב' },
+    count: n => `${n} שאלות`, page: (p, n) => `עמוד ${p} מתוך ${n}`, pageLabel: 'מספר עמוד',
+    prev: 'הקודם', next: 'הבא', randomNext: 'שאלה אקראית', random: 'אקראי',
+    meta: (i, id, topic) => `${i}. שאלה מספר ${id} · ${topic}`,
+    imgAlt: 'תמונה לשאלה', imgMissing: '(התמונה לשאלה זו אינה זמינה במאגר)',
+    loading: 'טוען שאלות…', error: 'שגיאה בטעינת השאלות. נסו לרענן את הדף.',
+  },
+  en: {
+    dir: 'ltr', title: 'Theory Practice', letters: 'ABCD',
+    language: 'Language', license: 'License', topic: 'Topic', perPage: 'Per page',
+    licenses: { B: 'Private car', A: 'Motorcycle', C1: 'Light truck', C: 'Heavy truck', D: 'Bus', 1: 'Tractor' },
+    topics: { '': 'All topics', laws: 'Traffic laws', safety: 'Safety', signs: 'Traffic signs', vehicle: 'Know your vehicle' },
+    count: n => `${n} questions`, page: (p, n) => `Page ${p} of ${n}`, pageLabel: 'Page number',
+    prev: 'Previous', next: 'Next', randomNext: 'Random question', random: 'Random',
+    meta: (i, id, topic) => `${i}. Question no. ${id} · ${topic}`,
+    imgAlt: 'Question image', imgMissing: '(The image for this question is not available)',
+    loading: 'Loading questions…', error: 'Failed to load the questions. Try refreshing the page.',
+  },
+  ar: {
+    dir: 'rtl', title: 'تدريب النظري', letters: 'أبجد',
+    language: 'اللغة', license: 'الرخصة', topic: 'الموضوع', perPage: 'أسئلة في الصفحة',
+    licenses: { B: 'سيارة خصوصية', A: 'دراجة نارية', C1: 'شاحنة خفيفة', C: 'شاحنة ثقيلة', D: 'حافلة', 1: 'جرار' },
+    topics: { '': 'كل المواضيع', laws: 'قوانين المرور', safety: 'السلامة على الطرق', signs: 'إشارات المرور', vehicle: 'معرفة المركبة' },
+    count: n => `${n} سؤالاً`, page: (p, n) => `صفحة ${p} من ${n}`, pageLabel: 'رقم الصفحة',
+    prev: 'السابق', next: 'التالي', randomNext: 'سؤال عشوائي', random: 'عشوائي',
+    meta: (i, id, topic) => `${i}. سؤال رقم ${id} · ${topic}`,
+    imgAlt: 'صورة السؤال', imgMissing: '(صورة هذا السؤال غير متوفرة)',
+    loading: 'جارٍ تحميل الأسئلة…', error: 'فشل تحميل الأسئلة. حاول تحديث الصفحة.',
+  },
+};
+
 const $ = id => document.getElementById(id);
-let filtered = [], page = 1, randomIdx = -1;
+let lang = 'he', S = STRINGS.he, filtered = [], page = 1, randomIdx = -1;
 
 const isRandom = () => $('size').value === 'random';
 const pageSize = () => $('size').value === 'all' ? filtered.length || 1 : +$('size').value;
 const pageCount = () => isRandom() ? 1 : Math.max(1, Math.ceil(filtered.length / pageSize()));
 
-function applyFilter() {
+// Each language's questions live in data_<lang>.js and are loaded on first use.
+function loadLanguage(l) {
+  if (window.QUESTIONS && QUESTIONS[l]) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = `data_${l}.js?v=${DATA_VERSIONS[l]}`;
+    s.onload = () => (window.QUESTIONS && QUESTIONS[l]) ? resolve() : reject(new Error(`no data in data_${l}.js`));
+    s.onerror = () => reject(new Error(`could not load data_${l}.js`));
+    document.head.append(s);
+  });
+}
+
+function applyStrings() {
+  document.documentElement.lang = lang;
+  document.documentElement.dir = S.dir;
+  document.title = S.title;
+  document.querySelectorAll('[data-t]').forEach(el => el.textContent = S[el.dataset.t]);
+  for (const o of $('license').options) o.textContent = `${o.value} – ${S.licenses[o.value]}`;
+  for (const o of $('topic').options) o.textContent = S.topics[o.value];
+  $('prev').textContent = S.prev;
+  for (const id of ['slider', 'pageNum']) $(id).setAttribute('aria-label', S.pageLabel);
+}
+
+// keepPosition: stay on the same page / random question (used when only the language changes,
+// since every language has the same questions in the same order).
+function applyFilter(keepPosition) {
   const t = $('topic').value, lic = $('license').value;
-  filtered = QUESTIONS.filter(q => q.licenses.includes(lic) && (!t || q.topic === t));
-  $('count').textContent = `${filtered.length} שאלות`;
-  page = 1;
-  randomIdx = -1;
-  if (isRandom()) pickRandom();
+  filtered = QUESTIONS[lang].filter(q => q.licenses.includes(lic) && (!t || q.topic === t));
+  $('count').textContent = S.count(filtered.length);
+  if (!keepPosition) {
+    page = 1;
+    randomIdx = -1;
+    if (isRandom()) pickRandom();
+  }
   render();
 }
 
@@ -138,13 +208,13 @@ function renderQuestion(q, index) {
   const el = document.createElement('section');
   el.className = 'q';
   el.innerHTML = `<div class="q-meta"></div><p class="q-text"></p>`;
-  el.querySelector('.q-meta').textContent = `${index}. שאלה מספר ${q.id} · ${q.topic}`;
+  el.querySelector('.q-meta').textContent = S.meta(index, q.id, S.topics[q.topic]);
   el.querySelector('.q-text').textContent = q.text;
   if (q.image) {
     if (/^https?:\/\//.test(q.image)) {
       const img = new Image();
       img.loading = 'lazy';
-      img.alt = 'תמונה לשאלה';
+      img.alt = S.imgAlt;
       img.src = q.image;
       img.onerror = () => img.replaceWith(missing());
       el.append(img);
@@ -157,7 +227,7 @@ function renderQuestion(q, index) {
   q.options.forEach((text, i) => {
     const li = document.createElement('li');
     const b = document.createElement('button');
-    b.innerHTML = `<span class="letter">${LETTERS[i]}.</span>`;
+    b.innerHTML = `<span class="letter">${S.letters[i]}.</span>`;
     b.append(text);
     b.onclick = () => {
       const btns = ul.querySelectorAll('button');
@@ -175,7 +245,7 @@ function renderQuestion(q, index) {
 function missing() {
   const d = document.createElement('div');
   d.className = 'img-missing';
-  d.textContent = '(התמונה לשאלה זו אינה זמינה במאגר)';
+  d.textContent = S.imgMissing;
   return d;
 }
 
@@ -191,19 +261,33 @@ function render() {
 
   $('prev').disabled = isRandom() || page <= 1;
   $('next').disabled = isRandom() ? filtered.length === 0 : page >= n;
-  $('next').textContent = isRandom() ? 'שאלה אקראית' : 'הבא';
+  $('next').textContent = isRandom() ? S.randomNext : S.next;
   for (const id of ['slider', 'pageNum']) {
     $(id).max = n;
     $(id).value = page;
     $(id).disabled = isRandom() || n <= 1;
   }
-  $('pageInfo').textContent = isRandom() ? 'אקראי' : `עמוד ${page} מתוך ${n}`;
+  $('pageInfo').textContent = isRandom() ? S.random : S.page(page, n);
   window.scrollTo(0, 0);
 }
 
 function goTo(p) { page = +p || 1; render(); }
 
-$('topic').onchange = $('license').onchange = applyFilter;
+async function setLanguage(l, keepPosition) {
+  lang = l;
+  S = STRINGS[l];
+  applyStrings();
+  $('list').textContent = S.loading;
+  try {
+    await loadLanguage(l);
+    applyFilter(keepPosition);
+  } catch (e) {
+    $('list').textContent = `${S.error} (${e.message})`;
+  }
+}
+
+$('lang').onchange = e => setLanguage(e.target.value, true);
+$('topic').onchange = $('license').onchange = () => applyFilter(false);
 $('size').onchange = () => {
   page = 1;
   if (isRandom()) pickRandom();
@@ -213,15 +297,13 @@ $('prev').onclick = () => goTo(page - 1);
 $('next').onclick = () => {
   if (isRandom()) { pickRandom(); render(); } else goTo(page + 1);
 };
-$('slider').oninput = e => { $('pageNum').value = e.target.value; $('pageInfo').textContent = `עמוד ${e.target.value} מתוך ${pageCount()}`; };
+$('slider').oninput = e => { $('pageNum').value = e.target.value; $('pageInfo').textContent = S.page(e.target.value, pageCount()); };
 $('slider').onchange = e => goTo(e.target.value);
 $('pageNum').onchange = e => goTo(e.target.value);
 
-try {
-  applyFilter();
-} catch (e) {
-  $('list').textContent = 'שגיאה בטעינת השאלות. נסו לרענן את הדף. (' + e.message + ')';
-}
+// Always start in Hebrew, even if the browser restored another selection on reload.
+$('lang').value = 'he';
+setLanguage('he', false);
 </script>
 </body>
 </html>
