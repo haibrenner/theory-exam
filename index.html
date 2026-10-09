@@ -108,7 +108,7 @@
 </header>
 <main id="list"></main>
 
-<script src="data.js"></script>
+<script src="data.js?v=6f04f9b923"></script>
 <script>
 const LETTERS = ['א', 'ב', 'ג', 'ד'];
 const $ = id => document.getElementById(id);
@@ -181,7 +181,7 @@ function missing() {
 
 function render() {
   const list = $('list');
-  list.replaceChildren();
+  list.textContent = '';
   const n = pageCount();
   page = Math.min(Math.max(1, page), n);
 
@@ -217,7 +217,11 @@ $('slider').oninput = e => { $('pageNum').value = e.target.value; $('pageInfo').
 $('slider').onchange = e => goTo(e.target.value);
 $('pageNum').onchange = e => goTo(e.target.value);
 
-applyFilter();
+try {
+  applyFilter();
+} catch (e) {
+  $('list').textContent = 'שגיאה בטעינת השאלות. נסו לרענן את הדף. (' + e.message + ')';
+}
 </script>
 </body>
 </html>

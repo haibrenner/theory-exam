@@ -1,5 +1,5 @@
 """Parse the full pool in ../original/ into data.js for index.html."""
-import json, os, re
+import hashlib, json, os, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(os.path.dirname(HERE), 'original')
@@ -40,4 +40,12 @@ with open(os.path.join(HERE, 'data.js'), 'w', encoding='utf-8') as f:
     f.write('window.QUESTIONS = ')
     json.dump(questions, f, ensure_ascii=False)
     f.write(';\n')
-print(f'wrote {len(questions)} questions to data.js')
+# Bump the data.js?v= cache-buster in index.html so browsers never pair new code with stale data.
+with open(os.path.join(HERE, 'data.js'), 'rb') as f:
+    version = hashlib.sha1(f.read()).hexdigest()[:10]
+page = os.path.join(HERE, 'index.html')
+with open(page, encoding='utf-8') as f:
+    html = re.sub(r'data\.js\?v=\w+', f'data.js?v={version}', f.read())
+with open(page, 'w', encoding='utf-8') as f:
+    f.write(html)
+print(f'wrote {len(questions)} questions to data.js (v={version})')
