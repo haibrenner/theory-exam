@@ -71,6 +71,16 @@
 <body>
 <header>
   <div class="controls">
+    <label>רישיון
+      <select id="license">
+        <option value="B" selected>B – רכב פרטי</option>
+        <option value="A">A – אופנוע</option>
+        <option value="C1">C1 – משאית קלה</option>
+        <option value="C">C – משאית כבדה</option>
+        <option value="D">D – אוטובוס</option>
+        <option value="1">1 – טרקטור</option>
+      </select>
+    </label>
     <label>נושא
       <select id="topic">
         <option value="">כל הנושאים</option>
@@ -109,8 +119,8 @@ const pageSize = () => $('size').value === 'all' ? filtered.length || 1 : +$('si
 const pageCount = () => isRandom() ? 1 : Math.max(1, Math.ceil(filtered.length / pageSize()));
 
 function applyFilter() {
-  const t = $('topic').value;
-  filtered = QUESTIONS.filter(q => !t || q.topic === t);
+  const t = $('topic').value, lic = $('license').value;
+  filtered = QUESTIONS.filter(q => q.licenses.includes(lic) && (!t || q.topic === t));
   $('count').textContent = `${filtered.length} שאלות`;
   page = 1;
   randomIdx = -1;
@@ -193,7 +203,7 @@ function render() {
 
 function goTo(p) { page = +p || 1; render(); }
 
-$('topic').onchange = applyFilter;
+$('topic').onchange = $('license').onchange = applyFilter;
 $('size').onchange = () => {
   page = 1;
   if (isRandom()) pickRandom();
