@@ -1,12 +1,11 @@
-"""Parse the full pool in ../original/ into data.js for index.html."""
+"""Parse theory_questions.txt and theory_answers.txt into data.js for index.html."""
 import hashlib, json, os, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.join(os.path.dirname(HERE), 'original')
 LETTERS = 'אבגד'
 
 def read(name):
-    with open(os.path.join(ROOT, name), encoding='utf-8') as f:
+    with open(os.path.join(HERE, name), encoding='utf-8') as f:
         return f.read()
 
 answers = {}
