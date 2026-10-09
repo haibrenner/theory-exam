@@ -38,6 +38,18 @@
   .pager input[type=range] { flex: 1; accent-color: var(--accent); }
   .pager input[type=number] { width: 72px; }
   .info { font-size: 14px; color: var(--muted); white-space: nowrap; }
+  @media (max-width: 600px) {
+    .pager {
+      display: grid; gap: 8px;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: "prev info next" "slider slider num";
+    }
+    #prev { grid-area: prev; }
+    #next { grid-area: next; }
+    #pageInfo { grid-area: info; text-align: center; }
+    #slider { grid-area: slider; width: 100%; min-width: 0; }
+    #pageNum { grid-area: num; }
+  }
   main { max-width: 860px; margin: 0 auto; padding: 16px; }
   .q { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
   .q-meta { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
