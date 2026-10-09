@@ -124,11 +124,11 @@ function pickRandom() {
   randomIdx = i;
 }
 
-function renderQuestion(q) {
+function renderQuestion(q, index) {
   const el = document.createElement('section');
   el.className = 'q';
   el.innerHTML = `<div class="q-meta"></div><p class="q-text"></p>`;
-  el.querySelector('.q-meta').textContent = `שאלה ${q.id} · ${q.topic}`;
+  el.querySelector('.q-meta').textContent = `${index}. שאלה מספר ${q.id} · ${q.topic}`;
   el.querySelector('.q-text').textContent = q.text;
   if (q.image) {
     if (/^https?:\/\//.test(q.image)) {
@@ -175,10 +175,9 @@ function render() {
   const n = pageCount();
   page = Math.min(Math.max(1, page), n);
 
-  const items = isRandom()
-    ? (filtered.length ? [filtered[randomIdx]] : [])
-    : filtered.slice((page - 1) * pageSize(), page * pageSize());
-  items.forEach(q => list.append(renderQuestion(q)));
+  const start = isRandom() ? randomIdx : (page - 1) * pageSize();
+  const end = isRandom() ? (filtered.length ? randomIdx + 1 : 0) : page * pageSize();
+  filtered.slice(start, end).forEach((q, i) => list.append(renderQuestion(q, start + i + 1)));
 
   $('prev').disabled = isRandom() || page <= 1;
   $('next').disabled = isRandom() ? filtered.length === 0 : page >= n;
