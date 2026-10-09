@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>תרגול תאוריה</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --card: #ffffff; --text: #1d1d1f; --muted: #6b6b70; --border: #dddbd5;
+    --accent: #2f5fd0; --opt-hover: #f0efe9;
+    --right: #cdeccf; --right-border: #2e8b3a; --wrong: #f6cfcf; --wrong-border: #c0392b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17171a; --card: #222226; --text: #ececee; --muted: #9a9aa2; --border: #3a3a40;
+      --accent: #7fa2ff; --opt-hover: #2c2c32;
+      --right: #1f4a27; --right-border: #4cc061; --wrong: #5a2323; --wrong-border: #e0605a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", Arial, "Noto Sans Hebrew", sans-serif; line-height: 1.5;
+  }
+  header {
+    position: sticky; top: 0; z-index: 1; background: var(--bg);
+    border-bottom: 1px solid var(--border); padding: 12px 16px;
+  }
+  .controls { max-width: 860px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+  label { font-size: 14px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  select, button, input[type=number] {
+    font: inherit; font-size: 15px; color: var(--text); background: var(--card);
+    border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px;
+  }
+  button { cursor: pointer; min-width: 80px; }
+  button:disabled { opacity: .4; cursor: default; }
+  .pager { display: flex; gap: 8px; align-items: center; flex: 1 1 100%; }
+  .pager input[type=range] { flex: 1; accent-color: var(--accent); }
+  .pager input[type=number] { width: 72px; }
+  .info { font-size: 14px; color: var(--muted); white-space: nowrap; }
+  main { max-width: 860px; margin: 0 auto; padding: 16px; }
+  .q { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .q-meta { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .q-text { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
+  .q img { display: block; max-width: 100%; max-height: 320px; margin: 0 auto 12px; border-radius: 6px; }
+  .img-missing { font-size: 13px; color: var(--muted); font-style: italic; margin-bottom: 12px; }
+  .opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .opts button {
+    width: 100%; text-align: right; font-size: 16px; padding: 9px 12px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--card);
+  }
+  .opts button:not(:disabled):hover { background: var(--opt-hover); }
+  .opts button:disabled { opacity: 1; cursor: default; }
+  .opts button.right { background: var(--right); border-color: var(--right-border); }
+  .opts button.wrong { background: var(--wrong); border-color: var(--wrong-border); }
+  .letter { font-weight: 700; margin-left: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="controls">
+    <label>נושא
+      <select id="topic">
+        <option value="">כל הנושאים</option>
+        <option>חוקי התנועה</option>
+        <option>בטיחות</option>
+        <option>תמרורים</option>
+        <option>הכרת הרכב</option>
+      </select>
+    </label>
+    <label>שאלות בעמוד
+      <select id="size">
+        <option>1</option><option>5</option><option selected>10</option><option>20</option>
+        <option>50</option><option>100</option><option value="all">ALL</option><option value="random">RANDOM</option>
+      </select>
+    </label>
+    <span class="info" id="count"></span>
+    <div class="pager">
+      <button id="prev">הקודם</button>
+      <input type="range" id="slider" min="1" value="1" aria-label="מספר עמוד">
+      <input type="number" id="pageNum" min="1" value="1" aria-label="מספר עמוד">
+      <span class="info" id="pageInfo"></span>
+      <button id="next">הבא</button>
+    </div>
+  </div>
+</header>
+<main id="list"></main>
+
+<script src="data.js"></script>
+<script>
+const LETTERS = ['א', 'ב', 'ג', 'ד'];
+const $ = id => document.getElementById(id);
+let filtered = [], page = 1, randomIdx = -1;
+
+const isRandom = () => $('size').value === 'random';
+const pageSize = () => $('size').value === 'all' ? filtered.length || 1 : +$('size').value;
+const pageCount = () => isRandom() ? 1 : Math.max(1, Math.ceil(filtered.length / pageSize()));
+
+function applyFilter() {
+  const t = $('topic').value;
+  filtered = QUESTIONS.filter(q => !t || q.topic === t);
+  $('count').textContent = `${filtered.length} שאלות`;
+  page = 1;
+  randomIdx = -1;
+  if (isRandom()) pickRandom();
+  render();
+}
+
+function pickRandom() {
+  let i;
+  do { i = Math.floor(Math.random() * filtered.length); } while (filtered.length > 1 && i === randomIdx);
+  randomIdx = i;
+}
+
+function renderQuestion(q) {
+  const el = document.createElement('section');
+  el.className = 'q';
+  el.innerHTML = `<div class="q-meta"></div><p class="q-text"></p>`;
+  el.querySelector('.q-meta').textContent = `שאלה ${q.id} · ${q.topic}`;
+  el.querySelector('.q-text').textContent = q.text;
+  if (q.image) {
+    if (/^https?:\/\//.test(q.image)) {
+      const img = new Image();
+      img.loading = 'lazy';
+      img.alt = 'תמונה לשאלה';
+      img.src = q.image;
+      img.onerror = () => img.replaceWith(missing());
+      el.append(img);
+    } else {
+      el.append(missing());
+    }
+  }
+  const ul = document.createElement('ul');
+  ul.className = 'opts';
+  q.options.forEach((text, i) => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.innerHTML = `<span class="letter">${LETTERS[i]}.</span>`;
+    b.append(text);
+    b.onclick = () => {
+      const btns = ul.querySelectorAll('button');
+      btns[q.answer].classList.add('right');
+      if (i !== q.answer) b.classList.add('wrong');
+      btns.forEach(x => x.disabled = true);
+    };
+    li.append(b);
+    ul.append(li);
+  });
+  el.append(ul);
+  return el;
+}
+
+function missing() {
+  const d = document.createElement('div');
+  d.className = 'img-missing';
+  d.textContent = '(התמונה לשאלה זו אינה זמינה במאגר)';
+  return d;
+}
+
+function render() {
+  const list = $('list');
+  list.replaceChildren();
+  const n = pageCount();
+  page = Math.min(Math.max(1, page), n);
+
+  const items = isRandom()
+    ? (filtered.length ? [filtered[randomIdx]] : [])
+    : filtered.slice((page - 1) * pageSize(), page * pageSize());
+  items.forEach(q => list.append(renderQuestion(q)));
+
+  $('prev').disabled = isRandom() || page <= 1;
+  $('next').disabled = isRandom() ? filtered.length === 0 : page >= n;
+  $('next').textContent = isRandom() ? 'שאלה אקראית' : 'הבא';
+  for (const id of ['slider', 'pageNum']) {
+    $(id).max = n;
+    $(id).value = page;
+    $(id).disabled = isRandom() || n <= 1;
+  }
+  $('pageInfo').textContent = isRandom() ? 'אקראי' : `עמוד ${page} מתוך ${n}`;
+  window.scrollTo(0, 0);
+}
+
+function goTo(p) { page = +p || 1; render(); }
+
+$('topic').onchange = applyFilter;
+$('size').onchange = () => {
+  page = 1;
+  if (isRandom()) pickRandom();
+  render();
+};
+$('prev').onclick = () => goTo(page - 1);
+$('next').onclick = () => {
+  if (isRandom()) { pickRandom(); render(); } else goTo(page + 1);
+};
+$('slider').oninput = e => { $('pageNum').value = e.target.value; $('pageInfo').textContent = `עמוד ${e.target.value} מתוך ${pageCount()}`; };
+$('slider').onchange = e => goTo(e.target.value);
+$('pageNum').onchange = e => goTo(e.target.value);
+
+applyFilter();
+</script>
+</body>
+</html>
