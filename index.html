@@ -56,6 +56,10 @@
     font-size: 13px; color: var(--muted); margin: 0 0 16px; padding: 8px 12px;
     border: 1px dashed var(--border); border-radius: 8px;
   }
+  .disclaimer summary { cursor: pointer; }
+  .disclaimer .more { text-decoration: underline; }
+  .disclaimer[open] .more { display: none; }
+  .disclaimer p { margin: 8px 0 0; }
   .q-meta { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
   .q-text { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
   .q img { display: block; max-width: 100%; max-height: 320px; margin: 0 auto 12px; border-radius: 6px; }
@@ -118,7 +122,10 @@
   </div>
 </header>
 <main>
-  <p class="disclaimer" data-t="disclaimer"></p>
+  <details class="disclaimer">
+    <summary><span data-t="disclaimerShort"></span> <span class="more" data-t="more"></span></summary>
+    <p data-t="disclaimer"></p>
+  </details>
   <div id="list"></div>
 </main>
 
@@ -135,7 +142,8 @@ const STRINGS = {
     prev: 'הקודם', next: 'הבא', randomNext: 'שאלה אקראית', random: 'אקראי',
     meta: (i, id, topic) => `${i}. שאלה מספר ${id} · ${topic}`,
     imgAlt: 'תמונה לשאלה', imgMissing: '(התמונה לשאלה זו אינה זמינה במאגר)',
-    disclaimer: 'האתר מבוסס על מאגר השאלות הרשמי של משרד התחבורה, אך אינו מופעל על ידי הממשלה והתוכן בו אינו מאומת באופן מלא. השימוש באתר חינמי.',
+    disclaimerShort: 'אתר לא רשמי, מבוסס על מאגר השאלות הרשמי של משרד התחבורה. השימוש חינמי.', more: 'פרטים נוספים',
+    disclaimer: 'האתר מבוסס על מאגר השאלות הרשמי של משרד התחבורה והבטיחות בדרכים, המפורסם באתר data.gov.il, אך אינו מופעל על ידי הממשלה והתוכן בו אינו מאומת באופן מלא. זכויות היוצרים במאגר שייכות למדינת ישראל. השימוש במאגר נעשה בהתאם לתנאי השימוש ולרישיון הפתוח שבו פורסם, תוך ציון המקור, במסגרת שימוש הוגן וללא שינוי בתוכן השאלות והתשובות. הנתונים מעודכנים ל-10 באוקטובר 2026. השימוש באתר חינמי.',
     loading: 'טוען שאלות…', error: 'שגיאה בטעינת השאלות. נסו לרענן את הדף.',
   },
   en: {
@@ -147,7 +155,8 @@ const STRINGS = {
     prev: 'Previous', next: 'Next', randomNext: 'Random question', random: 'Random',
     meta: (i, id, topic) => `${i}. Question no. ${id} · ${topic}`,
     imgAlt: 'Question image', imgMissing: '(The image for this question is not available)',
-    disclaimer: 'This site is based on the official question pool of the Israeli Ministry of Transport, but it is not operated by the government and its content has not been fully verified. The site is free to use.',
+    disclaimerShort: 'Unofficial site, based on the official question pool of the Ministry of Transport. Free to use.', more: 'More details',
+    disclaimer: 'This site is based on the official question pool of the Israeli Ministry of Transport and Road Safety, published on data.gov.il, but it is not operated by the government and its content has not been fully verified. Copyright in the question pool belongs to the State of Israel. The pool is used in accordance with the terms of use and the open license under which it was published, with attribution to the source, as fair use, and without changing the questions and answers. The data is current as of October 10, 2026. The site is free to use.',
     loading: 'Loading questions…', error: 'Failed to load the questions. Try refreshing the page.',
   },
   ar: {
@@ -159,7 +168,8 @@ const STRINGS = {
     prev: 'السابق', next: 'التالي', randomNext: 'سؤال عشوائي', random: 'عشوائي',
     meta: (i, id, topic) => `${i}. سؤال رقم ${id} · ${topic}`,
     imgAlt: 'صورة السؤال', imgMissing: '(صورة هذا السؤال غير متوفرة)',
-    disclaimer: 'يعتمد هذا الموقع على بنك الأسئلة الرسمي لوزارة المواصلات، لكنه لا يُدار من قبل الحكومة ولم يتم التحقق من محتواه بالكامل. استخدام الموقع مجاني.',
+    disclaimerShort: 'موقع غير رسمي، يعتمد على بنك الأسئلة الرسمي لوزارة المواصلات. استخدام الموقع مجاني.', more: 'تفاصيل إضافية',
+    disclaimer: 'يعتمد هذا الموقع على بنك الأسئلة الرسمي لوزارة المواصلات والأمان على الطرق، المنشور في موقع data.gov.il، لكنه لا يُدار من قبل الحكومة ولم يتم التحقق من محتواه بالكامل. حقوق الطبع والنشر لبنك الأسئلة محفوظة لدولة إسرائيل. يتم استخدام بنك الأسئلة وفقاً لشروط الاستخدام والرخصة المفتوحة التي نُشر بموجبها، مع ذكر المصدر، وضمن الاستخدام العادل، ودون تغيير في محتوى الأسئلة والأجوبة. البيانات محدّثة حتى 10 أكتوبر 2026. استخدام الموقع مجاني.',
     loading: 'جارٍ تحميل الأسئلة…', error: 'فشل تحميل الأسئلة. حاول تحديث الصفحة.',
   },
 };
